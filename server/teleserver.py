@@ -74,7 +74,11 @@ def MonitorBot():
 			msg = {}
 			if cmd[0] == 'P':
 				msg['type'] = 'dir'
-				msg['data'] = cmd[1]
+				msg['data']['dir'] = cmd[1]
+				msg['data']['lt'] = cmd[2]
+				msg['data']['rt'] = cmd[3]
+				msg['data']['la'] = cmd[4]
+				msg['data']['ra'] = cmd[5]
 			
 			if count(msg) > 0:
 				for client in clients:
