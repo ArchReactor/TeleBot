@@ -81,8 +81,9 @@ def MonitorBot():
 				msg['data']['ra'] = cmd[5]
 			
 			if count(msg) > 0:
+				message = tornado.escape.json_encode(msg)
 				for client in clients:
-					clients[client].write_message(msg)
+					clients[client].write_message(message)
 				
 			buf = ''
 		else:
