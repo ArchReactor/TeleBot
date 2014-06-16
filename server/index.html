@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Telebot</title>
+	<link rel="stylesheet" href="/js/css/themes/default/jquery.mobile.theme-1.4.2.min.css">
+	<link rel="stylesheet" href="/js/css/themes/default/jquery.mobile-1.4.2.min.css">
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/jquery.json-2.4.0.min.js"></script>
+	<script src="/js/jquery.websocket-0.0.4.js"></script>
+	<script src="/js/jquery.mobile-1.4.2.min.js"></script>
+
+	<script>
+	var ws;
+	var bConnected = false;
+	
+	$().ready(function () {
+		startSocket();
+		
+		$('#message').change(function(){
+		  ws.send('message', this.value);
+		  this.value = '';
+		});
+		
+		$('.spdbutton').click(function() {
+			$('.spdbutton').removeClass('ui-icon-star');
+			ws.send('speed', $(this).data('speed'));
+		});
+		
+		$('.navbutton').click(function() {
+			$('.navbutton').removeClass('ui-alt-icon');
+			ws.send('dir', $(this).data('dir'));
+		});
+	});
+	
+	function startSocket() {
+		ws = $.websocket("{{ wsurl }}", {
+				open: function (e){
+					$('#content').append('Connected<br>'); 
+					bConnected = true;
+				},
+				close: function (e){
+					if(bConnected) {
+						$('#content').append('Connection Lost<br>'); 
+						bConnected = false;
+					}
+					setTimeout(function(){ startSocket(); }, 1000);
+					ws = undefined;
+				},
+				events: {
+						message: function(e) { 
+							$('#content').append(e.clientid + ': ' + e.data + '<br>'); 
+						},
+						register: function(e) {
+							$('#client').html(e.clientid);
+						},
+						speed: function(e) {
+							$('.spdbutton').removeClass('ui-icon-star');
+							$('#speed' + e.data).addClass('ui-icon-star');
+						},
+						dir: function(e) {
+							$('.navbutton').removeClass('ui-alt-icon');
+							$('#dir' + e.data).addClass('ui-alt-icon');
+						}
+				}
+		});
+	}
+	</script>
+</head>
+<body>
+<div style="max-width:400px;">
+	<div class="ui-grid-d">
+		<div class="ui-block-a"><a href="#" id="speed1" data-speed="1" class="spdbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-right ui-icon-star" >Spd1</a></div>
+		<div class="ui-block-b">&nbsp;</div>
+		<div class="ui-block-c"><a href="#" id="dir7" data-dir="7" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-u-l" ></a></div>
+		<div class="ui-block-d"><a href="#" id="dir8" data-dir="8" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-u" ></a></div>
+		<div class="ui-block-e"><a href="#" id="dir9" data-dir="9" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-u-r" ></a></div>
+	</div>
+	<div class="ui-grid-d">
+		<div class="ui-block-a"><a href="#" id="speed2" data-speed="2" class="spdbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-right " >Spd2</a></div>
+		<div class="ui-block-d">&nbsp;</div>
+		<div class="ui-block-c"><a href="#" id="dir4" data-dir="4" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-l" ></a></div>
+		<div class="ui-block-d"><a href="#" id="dir5" data-dir="5" class="navbutton ui-alt-icon ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-delete" ></a></div>
+		<div class="ui-block-e"><a href="#" id="dir6" data-dir="6" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-r" ></a></div>
+	</div>
+	<div class="ui-grid-d">
+		<div class="ui-block-a"><a href="#" id="speed3" data-speed="3" class="spdbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-right " >Spd3</a></div>
+		<div class="ui-block-d">&nbsp;</div>
+		<div class="ui-block-c"><a href="#" id="dir1" data-dir="1" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d-l" ></a></div>
+		<div class="ui-block-d"><a href="#" id="dir2" data-dir="2" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d" ></a></div>
+		<div class="ui-block-e"><a href="#" id="dir3" data-dir="3" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d-r" ></a></div>
+	</div>
+</div>
+<hr>
+	<h1>Chat</h1>
+	<section id="content"></section>
+	ID:<span id="client"></span><input id="message" type="text"/>
+</body>
+</html>
