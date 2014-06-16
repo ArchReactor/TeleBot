@@ -49,6 +49,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		print "Client %s sent a message : %s" % (self.id, message)
 		m = tornado.escape.json_decode(message)
 		m.update({"clientid": self.id})
+		if m['type'] == "dir":
+			bot.send("M" + m['data'])
+		if m['type'] == "speed":
+			bot.send("S" + m['data'])
+		
 		message = tornado.escape.json_encode(m)
 		for client in clients:
 			clients[client].write_message(message)
@@ -63,7 +68,7 @@ def MonitorBot():
 	buf = ''
 	while(1):
 		b = bot.read(1)
-		if b == '\n':
+		if b == "\n":
 			print "Ardunio: %s" % (buf)
 			buf = ''
 		else:
