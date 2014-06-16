@@ -70,6 +70,16 @@ def MonitorBot():
 		b = bot.read(1)
 		if b == "\n":
 			print "Ardunio: %s" % (buf)
+			cmd = buf.split(":")
+			msg = {}
+			if cmd[0] == 'P':
+				msg['type'] = 'dir'
+				msg['data'] = cmd[1]
+			
+			if count(msg) > 0:
+				for client in clients:
+					clients[client].write_message(msg)
+				
 			buf = ''
 		else:
 			buf = buf + b
