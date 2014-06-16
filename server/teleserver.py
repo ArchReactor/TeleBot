@@ -1,12 +1,32 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+import serial
+import thread
 
 from tornado.options import define, options, parse_command_line
 
 define("port", default=8888, help="run on the given port", type=int)
 
-# we gonna store clients in dictionary..
+class Arduino():
+	
+	def __init__(self, path='/dev/ttyUSB0', baud=115200):
+		self.ser = serial.Serial(path, baud)	
+	
+	def send(self, data):
+		self.ser.write(data)
+		
+	def read(self, bytes):
+		while (1):
+			if (self.ser.inWaiting() > bytes-1):
+				return self.ser.read(bytes)
+	
+	def flush():
+		self.ser.flushInput()
+		self.ser.flushInput()
+#end Arduino		
+
+# store clients in dictionary..
 clients = dict()
 
 class IndexHandler(tornado.web.RequestHandler):
@@ -37,7 +57,18 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		if clients[self.id]:
 			print "Client %s disconnected" % (self.id)
 			del clients[self.id]
-			
+#end WebSocketHandler
+
+def MonitorBot():
+	buf = ''
+	while(1):
+		b = bot.read(1)
+		if b == '\n':
+			print "Ardunio: %s" % (buf)
+			buf = ''
+		else:
+			buf = buf + b
+#end MonitorBot
 
 app = tornado.web.Application([
 	(r'/', IndexHandler),
@@ -45,8 +76,13 @@ app = tornado.web.Application([
 	(r'/ws', WebSocketHandler),
 ])
 
+bot = Arduino('/dev/ttyUSB0', 115200)
+
 if __name__ == '__main__':
 	parse_command_line()
+	thread.start_new_thread(MonitorBot)
+	
 	app.listen(options.port)
 	tornado.ioloop.IOLoop.instance().start()
 	print "Closing..."
+
