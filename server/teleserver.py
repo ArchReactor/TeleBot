@@ -50,9 +50,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		m = tornado.escape.json_decode(message)
 		m.update({"clientid": self.id})
 		if m['type'] == "dir":
-			bot.send("M" + m['data'])
+			bot.send("M" + str(m['data']))
 		if m['type'] == "speed":
-			bot.send("S" + m['data'])
+			bot.send("S" + str(m['data']))
 		
 		message = tornado.escape.json_encode(m)
 		for client in clients:
@@ -80,7 +80,7 @@ def MonitorBot():
 				msg['data']['la'] = cmd[4]
 				msg['data']['ra'] = cmd[5]
 			
-			if count(msg) > 0:
+			if len(msg) > 0:
 				message = tornado.escape.json_encode(msg)
 				for client in clients:
 					clients[client].write_message(message)
@@ -100,7 +100,7 @@ bot = Arduino('/dev/ttyACM0', 115200)
 
 if __name__ == '__main__':
 	parse_command_line()
-	thread.start_new_thread(MonitorBot)
+	thread.start_new_thread(MonitorBot, ())
 	
 	app.listen(options.port)
 	tornado.ioloop.IOLoop.instance().start()
