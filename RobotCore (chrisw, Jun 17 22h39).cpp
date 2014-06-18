@@ -51,17 +51,40 @@ void RobotCore::drive(int speed, int steer, uint8_t smoothing) {
 }
 
 void RobotCore::setMotorTarget(int speed, int steer) {
-	spdTgtR = speed - steer;
-	if (spdTgtR > 255) spdTgtR = 255;
-	if (spdTgtR < -255) spdTgtR = -255;
-
-	spdTgtL = speed + steer;
-	if (spdTgtL > 255) spdTgtL = 255;
-	if (spdTgtL < -255) spdTgtL = -255;
+	spdTgtL = speed;
+	spdTgtR = speed;
+	if(steer < 0) {
+		spdTgtL = speed * ((-255 - steer) / -255);
+	}
+	if(steer > 0) {
+		spdTgtR = speed * ((255 - steer) / 255);
+	}
 }
+/*
+void RobotCore::setMotorTarget(int speed, int steer) {
+	float leftMotorScale;
+	float rightMotorScale;
+	float maxMotorScale;
+	
+	spdTgtL = speed + steer;
+	spdTgtR = speed - steer;
 
+	leftMotorScale =  spdTgtL/255.0;
+	leftMotorScale = abs(leftMotorScale);
+	rightMotorScale =  spdTgtR/255.0;
+	rightMotorScale = abs(rightMotorScale);
+
+	//choose the max scale value if it is above 1
+	maxMotorScale = max(leftMotorScale,rightMotorScale);
+	maxMotorScale = max(1,maxMotorScale);
+
+	//and apply it to the mixed values
+	spdTgtL = constrain(spdTgtL/maxMotorScale,-255,255);
+	spdTgtR = constrain(spdTgtR/maxMotorScale,-255,255);
+}
+*/
 void RobotCore::speedCheck() {
-	if (spdRamp && millis() - spdRampLastMillis >= spdRamp) {
+	if (spdRamp && millis() - (spdRampLastMillis >= spdRamp || spdTgtR != spdCurR) || spdTgtL != spdCurL) {
 		if(spdTgtR != spdCurR) {
 			if(spdTgtR < spdCurR) {
 //				if(spdCurR - spdTgtR <= spdRamp) { //final step
