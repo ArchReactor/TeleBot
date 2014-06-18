@@ -10,7 +10,7 @@ define("port", default=8888, help="run on the given port", type=int)
 
 class Arduino():
 	
-	def __init__(self, path='/dev/ttyACM0', baud=115200):
+	def __init__(self, path, baud):
 		self.ser = serial.Serial(path, baud)	
 	
 	def send(self, data):
@@ -96,7 +96,7 @@ app = tornado.web.Application([
 	(r'/ws', WebSocketHandler),
 ])
 
-bot = Arduino('/dev/ttyUSB0', 115200)
+bot = Arduino('/dev/ttyACM0', 115200)
 
 if __name__ == '__main__':
 	parse_command_line()
