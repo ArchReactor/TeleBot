@@ -206,7 +206,7 @@ void checkSerial() {
             curDir = 0;
             break;
           case BACK_LEFT:
-            curDir = -255;
+            curDir = -127;
             curPwr = 0-lastPwr;
             break;
           case BACK:
@@ -214,19 +214,19 @@ void checkSerial() {
             curPwr = 0-lastPwr;
             break;
           case BACK_RIGHT:
-            curDir = 255;
+            curDir = 127;
             curPwr = 0-lastPwr;
             break;
           case SPIN_LEFT:
-            curDir = -127;
+            curDir = -lastPwr;
             curPwr = 0;
             break;
           case SPIN_RIGHT:
-            curDir = 127;
+            curDir = lastPwr;
             curPwr = 0;
             break;
           case FWD_LEFT:
-            curDir = 0-255;
+            curDir = -127;
             curPwr = lastPwr;
             break;
           case FWD:
@@ -234,7 +234,7 @@ void checkSerial() {
             curPwr = lastPwr;
             break;
           case FWD_RIGHT:
-            curDir = 255;
+            curDir = 127;
             curPwr = lastPwr;
             break;
           default:
@@ -272,21 +272,20 @@ void checkSerial() {
         delay(2);
         switch(Serial.read()) { //read 2nd byte
           case '1': //25%
-            curPwr = maxPwr * 0.25;
-            lastPwr = curPwr;
+            lastPwr = maxPwr * 0.25;
             break;
           case '2': //50%
-            curPwr = maxPwr * 0.50;
-            lastPwr = curPwr;
+            lastPwr = maxPwr * 0.50;
             break;
           case '3': //75%
-            curPwr = maxPwr * 0.75;
-            lastPwr = curPwr;
+            lastPwr = maxPwr * 0.75;
             break;
           case '4': //100%
-            curPwr = maxPwr;
-            lastPwr = curPwr;
+            lastPwr = maxPwr;
             break;
+        }
+        if(curPwr != 0) {
+            curPwr = lastPwr;
         }
         break;
       case 'D': //debug?
@@ -309,14 +308,16 @@ void checkSerial() {
 
 void applyPower() {
   if (powerEnable) {
-    bot.drive(curPwr, curDir, 5);
+    bot.drive(curPwr, curDir, 30);
   }
   bot.speedCheck();
-  if (bot.spdTgtL != 0 || bot.spdTgtR != 0) { 
-    Serial.print("D:"); Serial.print(curPwr); Serial.print(":"); Serial.print(curDir);
+
+  if (millis() % 300 && (bot.spdTgtL != 0 || bot.spdTgtR != 0 || bot.spdCurL != 0 || bot.spdCurR != 0)) { 
+    Serial.print("P:"); Serial.print(curPwr); Serial.print(":"); Serial.print(curDir);
     Serial.print(":"); Serial.print(bot.spdTgtL); Serial.print(":"); Serial.print(bot.spdCurL);
     Serial.print(":"); Serial.print(bot.spdTgtR); Serial.print(":"); Serial.println(bot.spdCurR);
   }
+
   //power info format: P:direction:left target:right target:left actual:right actual
 //  Serial.print("P:"); Serial.print(curDir); 
 //  Serial.print(":"); Serial.print(bot.lPower(curPwr)); Serial.print(":"); Serial.print(bot.rPower(curPwr)); 
