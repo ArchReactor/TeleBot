@@ -51,17 +51,20 @@ void RobotCore::drive(int speed, int steer, uint8_t smoothing) {
 }
 
 void RobotCore::setMotorTarget(int speed, int steer) {
-	spdTgtR = speed - steer;
-	if (spdTgtR > 255) spdTgtR = 255;
-	if (spdTgtR < -255) spdTgtR = -255;
-
-	spdTgtL = speed + steer;
-	if (spdTgtL > 255) spdTgtL = 255;
-	if (spdTgtL < -255) spdTgtL = -255;
+	if (speed == 0 && steer !=0) {
+		spdTgtL = steer;
+		spdTgtR = -steer;
+	} else {
+		spdTgtL = speed * ((-255 - steer) / -255.0);
+		spdTgtR = speed * ((255 - steer) / 255.0);
+		
+		spdTgtL = constrain(spdTgtL, -speed, speed);
+		spdTgtR = constrain(spdTgtR, -speed, speed);
+	}
 }
 
 void RobotCore::speedCheck() {
-	if (spdRamp && millis() - spdRampLastMillis >= spdRamp) {
+	if (spdRamp && (millis() - spdRampLastMillis >= spdRamp || spdTgtR != spdCurR || spdTgtL != spdCurL)) {
 		if(spdTgtR != spdCurR) {
 			if(spdTgtR < spdCurR) {
 //				if(spdCurR - spdTgtR <= spdRamp) { //final step

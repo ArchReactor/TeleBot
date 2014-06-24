@@ -64,9 +64,12 @@
 							$('#dir' + e.data).addClass('ui-alt-icon');
 						},
 						power: function (e) {
-							$('.navbutton').removeClass('ui-alt-icon');
-							$('#dir' + e.data['dir']).addClass('ui-alt-icon');
-							
+							$('#botspd').html(e.data['speed']);
+							$('#botstr').html(e.data['steer']);
+							$('#botLt').html(e.data['lt']);
+							$('#botRt').html(e.data['rt']);
+							$('#botLa').html(e.data['la']);
+							$('#botRa').html(e.data['ra']);
 						}
 				}
 		});
@@ -95,6 +98,19 @@
 		<div class="ui-block-c"><a href="#" id="dir1" data-dir="1" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d-l" ></a></div>
 		<div class="ui-block-d"><a href="#" id="dir2" data-dir="2" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d" ></a></div>
 		<div class="ui-block-e"><a href="#" id="dir3" data-dir="3" class="navbutton ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-notext ui-icon-arrow-d-r" ></a></div>
+	</div>
+</div>
+<hr>
+<div style="max-width:400px;">
+	<div class="ui-grid-b">
+		<div class="ui-block-a">Speed:<span id="botspd"></span></div>
+		<div class="ui-block-b">Left:<span id="botLt"></span></div>
+		<div class="ui-block-c">Right:<span id="botRt"></span></div>
+	</div>
+	<div class="ui-grid-b">
+		<div class="ui-block-a">Steer:<span id="botstr"></span></div>
+		<div class="ui-block-b">Left:<span id="botLa"></span></div>
+		<div class="ui-block-c">Right:<span id="botRa"></span></div>
 	</div>
 </div>
 <hr>

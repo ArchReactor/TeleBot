@@ -11,7 +11,7 @@ define("port", default=8888, help="run on the given port", type=int)
 class Arduino():
 	
 	def __init__(self, path, baud):
-		self.ser = serial.Serial(path, baud)	
+		self.ser = serial.Serial(path, baud, timeout=5)	
 	
 	def send(self, data):
 		self.ser.write(data)
@@ -19,7 +19,10 @@ class Arduino():
 	def read(self, bytes):
 		while (1):
 			if (self.ser.inWaiting() > bytes-1):
-				return self.ser.read(bytes)
+				return self.ser.read(bytes).rstrip()
+	
+	def readline(self):
+		return self.ser.readline()
 	
 	def flush():
 		self.ser.flushInput()
@@ -67,18 +70,20 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 def MonitorBot():
 	buf = ''
 	while(1):
-		b = bot.read(1)
-		if b == "\n":
-			print "Ardunio: %s" % (buf)
+		buf = bot.readline()
+		if buf != '':
 			cmd = buf.split(":")
-			msg = {}
-			if cmd[0] == 'P':
-				msg['type'] = 'dir'
-				msg['data']['dir'] = cmd[1]
-				msg['data']['lt'] = cmd[2]
-				msg['data']['rt'] = cmd[3]
+			msg = {'type':'', 'data':{}}
+			if cmd[0] == 'P' and len(cmd) == 7:
+				msg['type'] = 'power'
+				msg['data']['speed'] = cmd[1]
+				msg['data']['steer'] = cmd[2]
+				msg['data']['lt'] = cmd[3]
 				msg['data']['la'] = cmd[4]
-				msg['data']['ra'] = cmd[5]
+				msg['data']['rt'] = cmd[5]
+				msg['data']['ra'] = cmd[6]
+			if cmd[0] == 'D':
+				print "Ardunio: %s" % (buf)
 			
 			if len(msg) > 0:
 				message = tornado.escape.json_encode(msg)
@@ -86,8 +91,6 @@ def MonitorBot():
 					clients[client].write_message(message)
 				
 			buf = ''
-		else:
-			buf = buf + b
 #end MonitorBot
 
 app = tornado.web.Application([
