@@ -58,8 +58,15 @@ void RobotCore::setMotorTarget(int speed, int steer) {
 		spdTgtL = speed * ((-255 - steer) / -255.0);
 		spdTgtR = speed * ((255 - steer) / 255.0);
 		
-		spdTgtL = constrain(spdTgtL, -speed, speed);
-		spdTgtR = constrain(spdTgtR, -speed, speed);
+		if (speed > 0 && spdTgtL > speed)
+			spdTgtL = speed;
+		if (speed > 0 && spdTgtR > speed)
+			spdTgtR = speed;
+		if (speed < 0 && spdTgtL < speed)
+			spdTgtL = speed;
+		if (speed < 0 && spdTgtR < speed)
+			spdTgtR = speed;
+
 	}
 }
 
