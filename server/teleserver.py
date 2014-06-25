@@ -22,7 +22,11 @@ class Arduino():
 				return self.ser.read(bytes).rstrip()
 	
 	def readline(self):
-		return self.ser.readline()
+		data = self.ser.readline()
+		if data.find("\n") > 0:
+			return data
+		else:
+			return ""
 	
 	def flush():
 		self.ser.flushInput()
@@ -74,18 +78,19 @@ def MonitorBot():
 		if buf != '':
 			cmd = buf.split(":")
 			msg = {'type':'', 'data':{}}
-			if cmd[0] == 'P' and len(cmd) == 7:
-				msg['type'] = 'power'
-				msg['data']['speed'] = cmd[1]
-				msg['data']['steer'] = cmd[2]
-				msg['data']['lt'] = cmd[3]
-				msg['data']['la'] = cmd[4]
-				msg['data']['rt'] = cmd[5]
-				msg['data']['ra'] = cmd[6]
+			#if cmd[0] == 'P' and len(cmd) == 7:
+				#msg['type'] = 'power'
+				#msg['data']['speed'] = cmd[1]
+				#msg['data']['steer'] = cmd[2]
+				#msg['data']['lt'] = cmd[3]
+				#msg['data']['la'] = cmd[4]
+				#msg['data']['rt'] = cmd[5]
+				#msg['data']['ra'] = cmd[6]
 			if cmd[0] == 'D':
 				print "Ardunio: %s" % (buf)
 			
-			if len(msg) > 0:
+			if len(msg['data']) > 0:
+				print "sending data"
 				message = tornado.escape.json_encode(msg)
 				for client in clients:
 					clients[client].write_message(message)
